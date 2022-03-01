@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Serveless Form</title>
+    <!-- Add some CSS to change client UI -->
+    <style>
+    body {
+        background-color: #232F3E;
+    }
+    label, button {
+        color: #FF9900;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 20px;
+        margin-left: 15px;
+    }
+    h1 {
+        color: #FF9900;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 40px;
+        margin-left: 30px;
+    }
+    input {
+        color: #232F3E;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 20px;
+        margin-left: 20px;
+    }
+    div {
+        margin-bottom: 20px;
+    }
+    
+    </style>
+    <script>
+        // define the callAPI function that takes a first name and last name as parameters
+        var sendAnswer = ()=>{
+            // DOM操作でフォーム内の各値を取得
+            const genderOptions = document.getElementsByName("gender");
+            let gender = '';
+            for(let i=0; i<genderOptions.length; i++){
+                if (genderOptions.item(i).checked){
+                    gender = genderOptions.item(i).value;
+                }
+            }
+            const age = document.getElementById("age").value;
+            const howToKnow = document.getElementById("how-to-know").value;
+            const howOften = document.getElementById("how-often").value;
+            const howContentOptions = document.getElementsByName("how-content");
+            let howContent = 0;
+            for(let i=0; i<howContentOptions.length; i++){
+                if(howContentOptions.item(i).checked){
+                    howContent = howContentOptions.item(i).value;
+                }
+            }
+            const request = document.getElementById("request").value;
+
+            const myHeaders = new Headers(); // ヘッダの生成
+            myHeaders.append("Content-Type", "application/json"); // ヘッダでContent-Typeの指定
+            // JSON形式に変換
+            const raw = JSON.stringify({
+                "gender":gender,
+                "age":age,
+                "howToKnow":howToKnow,
+                "howOften":howOften,
+                "howContent":howContent,
+                "request":request
+            });
+            // HTTPリクエストを生成
+            const requestOptions = {
+                method: 'POST',
+                headers: myHeaders,
+                body: raw,
+                redirect: 'follow'
+            };
+            // API呼出しでDynamoDBにJSON格納
+            fetch("https://kxy88kz555.execute-api.ap-northeast-1.amazonaws.com/dev", requestOptions)
+            .then(response => response.text())
+            .then(result => alert(JSON.parse(result).body))
+            .catch(error => console.log('error', error));
+        }
+    </script>
+</head>
+<body>
+    <h1>アンケート - 顧客満足度調査</h1>
+    <form>
+        <div>
+            <label>性別：</label>
+            <br>
+            <input type="radio" name="gender" value="men">
+            <label for="men">男性</label>
+            <br>
+            <input type="radio" name="gender" value="women">
+            <label for="women">女性</label>
+            <br>
+            <input type="radio" name="gender" value="other">
+            <label for="other">その他</label>
+            <br>
+            <input type="radio" name="gender" value="no-answer">
+            <label for="no-answer">無回答</label>
+        </div>
+        
+        <div>
+            <label>年齢：</label>
+            <input type="number" id="age">
+        </div>
+
+        <div>
+            <label for="how-to-know">当サービス/商品をどこでお知りになられましたか。：</label>
+            <select name="how-to-know" id="how-to-know">
+                <option value="">選択</option>
+                <option value="ads">広告</option>
+                <option value="shop">店頭</option>
+                <option value="friends">知人から</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="how-often">当サービス/商品の利用頻度を教えてください。：</label>
+            <select name="how-often" id="how-often">
+                <option value="">選択</option>
+                <option value="everyday">毎日</option>
+                <option value="4or5w">週に4~5回</option>
+                <option value="2or3w">週に2~3回</option>
+                <option value="1w">週に1回</option>
+                <option value="little">ほとんど使わない</option>
+            </select>
+        </div>
+
+        <div>
+            <label>当サービス/商品に対する満足度を教えてください。：</label>
+            <br>
+            <input type="radio" name="how-content" value="1">
+            <label>1</label>
+            <input type="radio" name="how-content" value="2">
+            <label>2</label>
+            <input type="radio" name="how-content" value="3">
+            <label>3</label>
+            <input type="radio" name="how-content" value="4">
+            <label>4</label>
+            <input type="radio" name="how-content" value="5">
+            <label>5</label>
+        </div>
+        
+        <div>
+            <label>ご質問やご要望があればご記入ください。：</label>
+            <input type="text" id="request">
+        </div>
+        
+        <!-- set button onClick method to call function we defined passing input values as parameters -->
+        <div>
+            <button type="button" onclick="sendAnswer()">回答</button>
+        </div>
+    </form>
+</body>
+</html>
